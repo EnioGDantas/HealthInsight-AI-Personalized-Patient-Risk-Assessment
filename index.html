@@ -81,6 +81,11 @@
       border-radius: 10px;
       cursor: pointer;
     }
+    /* Estilo para botões Sim/Não lado a lado */
+    .input-area button {
+      flex: none;
+      width: 6rem;
+    }
   </style>
 </head>
 <body>
@@ -88,7 +93,7 @@
     <h1>AI Health Platform Prototype</h1>
     <div class="chat-area" id="chatArea">
       <div id="chatMessages" class="messages-container"></div>
-      <form class="input-area" onsubmit="handleSubmit(event)">
+      <form class="input-area" id="inputArea" onsubmit="handleSubmit(event)">
         <textarea class="input-field" id="messageInput" placeholder="Type your message here..." rows="2"></textarea>
         <button type="submit">Send</button>
       </form>
@@ -97,13 +102,13 @@
 
   <script>
     const chatMessages = document.getElementById("chatMessages");
-    const messageInput = document.getElementById("messageInput");
+    const inputArea = document.getElementById("inputArea");
 
     const questions = [
       "Hello! 👋<br><br>I am your AI Health Assistant. I’m here to collect some information about the patient. Shall we begin?",
       "Please enter the patient's full name:",
       "Please enter the patient's age:",
-      "Please enter the patient's gender:",
+      "Please select the patient's gender:",          // index 3
       "Please enter the patient's height (in cm):",
       "Please enter the patient's weight (in kg):",
       "Please enter the patient's ethnicity:",
@@ -112,8 +117,8 @@
       "Great! Now let's move on to the patient's lifestyle and daily habits:",
       "What is the patient's level of physical activity? (e.g., sedentary, moderate, active)",
       "Describe the patient's usual diet (e.g., vegetarian, omnivore, specific dietary preferences):",
-      "How often does the patient consume alcohol, and in what quantity?",
-      "Does the patient smoke? If yes, please specify frequency and quantity:",
+      "Does the patient consume alcohol? (Please select Yes or No)",  // index 12
+      "Does the patient smoke? (Please select Yes or No)", // index 13
       "Now we will collect some biometric data:",
       "Please enter the patient's blood pressure level (e.g., 120/80 mmHg):",
       "Please enter the patient's cholesterol level:",
@@ -128,26 +133,75 @@
     window.onload = () => {
       displayAssistantMessage(questions[currentQuestion]);
       currentQuestion++;
+      updateInputField();
     };
 
-    function handleSubmit(event) {
-      event.preventDefault();
-      const userInput = messageInput.value.trim();
-      if (!userInput) return;
+    function updateInputField() {
+      // Perguntas onde queremos os botões Sim/Não:
+      if (currentQuestion === 3 || currentQuestion === 12 || currentQuestion === 13) {
+        // substituir textarea por botões
+        inputArea.innerHTML = `
+          <button type="button" onclick="handleYesNoAnswer('Sim')">Sim</button>
+          <button type="button" onclick="handleYesNoAnswer('Não')">Não</button>
+        `;
+      } else {
+        // mostrar textarea e botão enviar
+        inputArea.innerHTML = `
+          <textarea class="input-field" id="messageInput" placeholder="Type your message here..." rows="2"></textarea>
+          <button type="submit">Send</button>
+        `;
+        // atualizar referência do messageInput (pois DOM mudou)
+        const newMessageInput = document.getElementById("messageInput");
+        newMessageInput.focus();
+        // Evento para enviar com Enter sem shift
+        newMessageInput.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            inputArea.dispatchEvent(new Event("submit"));
+          }
+        });
+      }
+    }
 
-      displayUserMessage(userInput);
-      answers.push(userInput);
-      messageInput.value = "";
+    function handleYesNoAnswer(answer) {
+      displayUserMessage(answer);
+      answers.push(answer);
 
       if (currentQuestion < questions.length) {
         setTimeout(() => {
           displayTyping(() => {
             displayAssistantMessage(questions[currentQuestion]);
             currentQuestion++;
+            updateInputField();
           });
         }, 600);
       } else {
-        // Final feedback based on real data
+        setTimeout(() => {
+          displayTyping(() => {
+            const resultHtml = analyzeData(answers);
+            displayAssistantMessage(resultHtml);
+          });
+        }, 1000);
+      }
+    }
+
+    function handleSubmit(event) {
+      event.preventDefault();
+      const userInput = document.getElementById("messageInput").value.trim();
+      if (!userInput) return;
+
+      displayUserMessage(userInput);
+      answers.push(userInput);
+
+      if (currentQuestion < questions.length) {
+        setTimeout(() => {
+          displayTyping(() => {
+            displayAssistantMessage(questions[currentQuestion]);
+            currentQuestion++;
+            updateInputField();
+          });
+        }, 600);
+      } else {
         setTimeout(() => {
           displayTyping(() => {
             const resultHtml = analyzeData(answers);
@@ -186,65 +240,58 @@
       }, 1000);
     }
 
-function analyzeData(ans) {
-  const age = Number(ans[2]);
-  const height = Number(ans[4]) / 100;
-  const weight = Number(ans[5]);
-  const bmi = weight / (height * height);
-  const bp = ans[15].split('/').map(Number);
-  const glucose = Number(ans[17]);
+    // Função de análise (exemplo do seu código original)
+    function analyzeData(ans) {
+      const age = Number(ans[2]);
+      const height = Number(ans[4]) / 100;
+      const weight = Number(ans[5]);
+      const bmi = weight / (height * height);
+      const bp = ans[15].split('/').map(Number);
+      const glucose = Number(ans[17]);
 
-  let feedback = `<strong>📊 Personalized Health Analysis:</strong><br><br>`;
+      let feedback = `<strong>📊 Personalized Health Analysis:</strong><br><br>`;
 
-  // BMI feedback and recommendations
-  feedback += `🧮 <strong>BMI:</strong> ${bmi.toFixed(1)} — `;
-  if (bmi >= 30) {
-    feedback += `Obese (⚠️)<br>`;
-    feedback += `🔹 Recommendation: Adopt a calorie-controlled, nutrient-rich diet focusing on whole foods, increase physical activity gradually (aim for 150 minutes/week), and seek professional guidance for weight management.<br><br>`;
-  } else if (bmi >= 25) {
-    feedback += `Overweight (⚠️)<br>`;
-    feedback += `🔹 Recommendation: Incorporate regular exercise, reduce intake of processed and high-sugar foods, and monitor weight to avoid progression.<br><br>`;
-  } else {
-    feedback += `Normal (✅)<br>`;
-    feedback += `🔹 Recommendation: Maintain your healthy weight through balanced diet and consistent physical activity.<br><br>`;
-  }
-
-  feedback += `💡 In Atlanta, over 30% of adults are obese, increasing risks of diabetes and hypertension.<br><br>`;
-
-  // Blood Pressure feedback and recommendations
-  feedback += `🩺 <strong>Blood Pressure:</strong> ${ans[15]} — `;
-  if (bp[0] >= 130 || bp[1] >= 80) {
-    feedback += `Elevated (⚠️)<br>`;
-    feedback += `🔹 Recommendation: Reduce sodium intake, engage in regular aerobic exercise, manage stress, limit alcohol consumption, and consult a healthcare professional for monitoring and possible medication.<br><br>`;
-  } else {
-    feedback += `Normal (✅)<br>`;
-    feedback += `🔹 Recommendation: Continue regular physical activity and a heart-healthy diet rich in fruits, vegetables, and whole grains.<br><br>`;
-  }
-
-  // Glucose feedback and recommendations
-  feedback += `🧪 <strong>Glucose:</strong> ${glucose} mg/dL — `;
-  if (glucose >= 126) {
-    feedback += `Diabetic range (⚠️)<br>`;
-    feedback += `🔹 Recommendation: Seek medical advice immediately for diagnosis and management, monitor blood sugar regularly, and focus on dietary adjustments and physical activity to control glucose levels.<br><br>`;
-  } else if (glucose >= 100) {
-    feedback += `Pre-diabetic range (⚠️)<br>`;
-    feedback += `🔹 Recommendation: Adopt lifestyle changes such as increased physical activity, weight loss if overweight, and dietary improvements to prevent progression to diabetes.<br><br>`;
-  } else {
-    feedback += `Normal (✅)<br>`;
-    feedback += `🔹 Recommendation: Maintain healthy lifestyle habits to keep glucose levels in normal range.<br><br>`;
-  }
-
-  feedback += `💬 <em>This analysis is based on CDC data and Atlanta’s public health trends. For a full diagnosis, consult a healthcare professional.</em>`;
-  return feedback;
-}
-
-
-    messageInput.addEventListener("keydown", function (event) {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        document.querySelector(".input-area").dispatchEvent(new Event("submit"));
+      // BMI feedback and recommendations
+      feedback += `🧮 <strong>BMI:</strong> ${bmi.toFixed(1)} — `;
+      if (bmi >= 30) {
+        feedback += `Obese (⚠️)<br>`;
+        feedback += `🔹 Recommendation: Adopt a calorie-controlled, nutrient-rich diet focusing on whole foods, increase physical activity gradually (aim for 150 minutes/week), and seek professional guidance for weight management.<br><br>`;
+      } else if (bmi >= 25) {
+        feedback += `Overweight (⚠️)<br>`;
+        feedback += `🔹 Recommendation: Incorporate regular exercise, reduce intake of processed and high-sugar foods, and monitor weight to avoid progression.<br><br>`;
+      } else {
+        feedback += `Normal (✅)<br>`;
+        feedback += `🔹 Recommendation: Maintain your healthy weight through balanced diet and consistent physical activity.<br><br>`;
       }
-    });
+
+      feedback += `💡 In Atlanta, over 30% of adults are obese, increasing risks of diabetes and hypertension.<br><br>`;
+
+      // Blood Pressure feedback and recommendations
+      feedback += `🩺 <strong>Blood Pressure:</strong> ${ans[15]} — `;
+      if (bp[0] >= 130 || bp[1] >= 80) {
+        feedback += `Elevated (⚠️)<br>`;
+        feedback += `🔹 Recommendation: Reduce sodium intake, engage in regular aerobic exercise, manage stress, limit alcohol consumption, and consult a healthcare professional for monitoring and possible medication.<br><br>`;
+      } else {
+        feedback += `Normal (✅)<br>`;
+        feedback += `🔹 Recommendation: Continue regular physical activity and a heart-healthy diet rich in fruits, vegetables, and whole grains.<br><br>`;
+      }
+
+      // Glucose feedback and recommendations
+      feedback += `🧪 <strong>Glucose:</strong> ${glucose} mg/dL — `;
+      if (glucose >= 126) {
+        feedback += `Diabetic range (⚠️)<br>`;
+        feedback += `🔹 Recommendation: Seek medical advice immediately for diagnosis and management, monitor blood sugar regularly, and focus on dietary adjustments and physical activity to control glucose levels.<br><br>`;
+      } else if (glucose >= 100) {
+        feedback += `Pre-diabetic range (⚠️)<br>`;
+        feedback += `🔹 Recommendation: Adopt lifestyle changes such as increased physical activity, weight loss if overweight, and dietary improvements to prevent progression to diabetes.<br><br>`;
+      } else {
+        feedback += `Normal (✅)<br>`;
+        feedback += `🔹 Recommendation: Maintain healthy lifestyle habits to keep glucose levels in normal range.<br><br>`;
+      }
+
+      feedback += `💬 <em>This analysis is based on CDC data and Atlanta’s public health trends. For a full diagnosis, consult a healthcare professional.</em>`;
+      return feedback;
+    }
   </script>
 </body>
 </html>
