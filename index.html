@@ -6,7 +6,20 @@
   <title>AI Health Platform</title>
   <link rel="stylesheet" href="style/styles.css" />
   <style>
-  .container {
+    /* Melhorias visuais e layout */
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #f4f7fc;
+    }
+
+    header {
+      background-color: #007BFF;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -16,6 +29,43 @@
       background-size: cover;
       height: 100vh;
     }
+
+    .section {
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .cta-button {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .cta-button:hover {
+      background-color: #218838;
+    }
+
+    .contact-form input, .contact-form textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .contact-form button {
+      padding: 10px 20px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+    }
+
     .chat-area {
       display: flex;
       flex-direction: column;
@@ -81,7 +131,7 @@
       border-radius: 10px;
       cursor: pointer;
     }
-    /* Estilo para botões Sim/Não lado a lado */
+
     .input-area button {
       flex: none;
       width: 6rem;
@@ -91,6 +141,15 @@
 <body>
   <div class="container">
     <h1>AI Health Platform Prototype</h1>
+
+    <!-- Seção Como Funciona -->
+    <section class="section">
+      <h2>How It Works</h2>
+      <p>HealthInsight AI uses cutting-edge Artificial Intelligence technology to provide personalized risk assessments for patients, identifying potential health risks early on. By utilizing public health data, the platform offers accurate predictions based on a patient's age, medical condition, and other critical factors.</p>
+      <button class="cta-button" onclick="window.location.href='https://eniogdantas.github.io/HealthInsight-AI-Personalized-Patient-Risk-Assessment/'">Try It Now</button>
+    </section>
+
+    <!-- Seção de Chat -->
     <div class="chat-area" id="chatArea">
       <div id="chatMessages" class="messages-container"></div>
       <form class="input-area" id="inputArea" onsubmit="handleSubmit(event)">
@@ -98,6 +157,18 @@
         <button type="submit">Send</button>
       </form>
     </div>
+
+    <!-- Seção Formulário de Contato -->
+    <section class="section">
+      <h2>Interested in Collaborating?</h2>
+      <p>If you are part of a hospital, health startup, or institution that would like to partner with us and help us further develop HealthInsight AI, please fill out the contact form below.</p>
+      <div class="contact-form">
+        <input type="text" placeholder="Your Name" required>
+        <input type="email" placeholder="Your Email" required>
+        <textarea placeholder="Your Message" rows="4" required></textarea>
+        <button type="submit">Submit</button>
+      </div>
+    </section>
   </div>
 
   <script>
@@ -108,7 +179,7 @@
       "Hello! 👋<br><br>I am your AI Health Assistant. I’m here to collect some information about the patient. Shall we begin?",
       "Please enter the patient's full name:",
       "Please enter the patient's age:",
-      "Please select the patient's gender:",          // index 3
+      "Please select the patient's gender:",          
       "Please enter the patient's height (in cm):",
       "Please enter the patient's weight (in kg):",
       "Please enter the patient's ethnicity:",
@@ -117,8 +188,8 @@
       "Great! Now let's move on to the patient's lifestyle and daily habits:",
       "What is the patient's level of physical activity? (e.g., sedentary, moderate, active)",
       "Describe the patient's usual diet (e.g., vegetarian, omnivore, specific dietary preferences):",
-      "Does the patient consume alcohol? (Please select Yes or No)",  // index 12
-      "Does the patient smoke? (Please select Yes or No)", // index 13
+      "Does the patient consume alcohol? (Please select Yes or No)", 
+      "Does the patient smoke? (Please select Yes or No)", 
       "Now we will collect some biometric data:",
       "Please enter the patient's blood pressure level (e.g., 120/80 mmHg):",
       "Please enter the patient's cholesterol level:",
@@ -137,23 +208,18 @@
     };
 
     function updateInputField() {
-      // Perguntas onde queremos os botões Sim/Não:
       if (currentQuestion === 3 || currentQuestion === 12 || currentQuestion === 13) {
-        // substituir textarea por botões
         inputArea.innerHTML = `
           <button type="button" onclick="handleYesNoAnswer('Sim')">Sim</button>
           <button type="button" onclick="handleYesNoAnswer('Não')">Não</button>
         `;
       } else {
-        // mostrar textarea e botão enviar
         inputArea.innerHTML = `
           <textarea class="input-field" id="messageInput" placeholder="Type your message here..." rows="2"></textarea>
           <button type="submit">Send</button>
         `;
-        // atualizar referência do messageInput (pois DOM mudou)
         const newMessageInput = document.getElementById("messageInput");
         newMessageInput.focus();
-        // Evento para enviar com Enter sem shift
         newMessageInput.addEventListener("keydown", function (event) {
           if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
@@ -240,7 +306,6 @@
       }, 1000);
     }
 
-    // Função de análise (exemplo do seu código original)
     function analyzeData(ans) {
       const age = Number(ans[2]);
       const height = Number(ans[4]) / 100;
@@ -251,7 +316,6 @@
 
       let feedback = `<strong>📊 Personalized Health Analysis:</strong><br><br>`;
 
-      // BMI feedback and recommendations
       feedback += `🧮 <strong>BMI:</strong> ${bmi.toFixed(1)} — `;
       if (bmi >= 30) {
         feedback += `Obese (⚠️)<br>`;
@@ -266,7 +330,6 @@
 
       feedback += `💡 In Atlanta, over 30% of adults are obese, increasing risks of diabetes and hypertension.<br><br>`;
 
-      // Blood Pressure feedback and recommendations
       feedback += `🩺 <strong>Blood Pressure:</strong> ${ans[15]} — `;
       if (bp[0] >= 130 || bp[1] >= 80) {
         feedback += `Elevated (⚠️)<br>`;
@@ -276,7 +339,6 @@
         feedback += `🔹 Recommendation: Continue regular physical activity and a heart-healthy diet rich in fruits, vegetables, and whole grains.<br><br>`;
       }
 
-      // Glucose feedback and recommendations
       feedback += `🧪 <strong>Glucose:</strong> ${glucose} mg/dL — `;
       if (glucose >= 126) {
         feedback += `Diabetic range (⚠️)<br>`;
