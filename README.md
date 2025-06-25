@@ -153,7 +153,14 @@ This project is provided **strictly for academic, demonstration, and non-commerc
 - Use it as inspiration for similar educational projects
 
 ---
+## 📰 News
 
+📌 [How AI Is Preventing Chronic Disease: Inside the HealthInsight AI Platform](https://medium.com/@enio.danttas/how-ai-is-preventing-chronic-disease-inside-the-healthinsight-ai-platform-6810ea84cbef)  
+🗓️ Published: June 2025  
+
+
+
+---
 ## 🤝 Contact
 
 📧 Email: [enio.danttas@gmail.com](mailto:enio.danttas@gmail.com)  
