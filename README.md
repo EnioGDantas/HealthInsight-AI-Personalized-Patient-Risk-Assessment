@@ -1,4 +1,3 @@
-
 # 🧠 AI Health Platform Prototype
 
 ## Overview
@@ -29,6 +28,9 @@ This solution is designed to support preventive healthcare by aligning user data
   - `Enter` to send, `Shift+Enter` for multiline  
   - Clean layout and mobile-friendly design
 
+- 📧 **Email Sending via PHP**  
+  Backend PHP script (`send_email.php`) added to handle sending user data and reports by email.
+
 ---
 
 ## 📁 Project Structure
@@ -40,6 +42,7 @@ AI-Health-Platform/
 │   └── style.css             # UI styles (chat layout, colors, fonts)
 ├── images/
 │   └── background.jpg        # Background image for interface
+├── send_email.php            # PHP script to send emails (backend)
 ```
 
 ---
@@ -51,8 +54,42 @@ AI-Health-Platform/
    git clone https://github.com/EnioGDantas/HealthInsight-AI-Personalized-Patient-Risk-Assessment.git
    ```
 2. Open the project folder  
-3. Simply open `index.html` in any modern web browser  
-4. Start interacting with the virtual assistant
+3. Open `index.html` in any modern web browser  
+4. Interact with the virtual assistant
+
+5. To enable email sending functionality:  
+   - Deploy the project on a server with PHP support (local or remote)  
+   - Use `send_email.php` as your backend email sender script  
+   - Connect your frontend form or JavaScript fetch/ajax requests to `send_email.php`  
+
+---
+
+## 📧 Example Usage of `send_email.php`
+
+You can send a POST request to `send_email.php` with parameters like:
+
+- `to` — recipient email address  
+- `subject` — email subject  
+- `message` — email body content (HTML or plain text)
+
+**Example JavaScript fetch:**
+
+```js
+fetch('send_email.php', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: new URLSearchParams({
+    to: 'recipient@example.com',
+    subject: 'Health Report',
+    message: '<h1>Your Health Data</h1><p>Details here...</p>'
+  })
+})
+.then(response => response.text())
+.then(data => console.log(data))
+.catch(err => console.error('Error sending email:', err));
+```
+
+Make sure your PHP script handles validation and sanitization properly.
 
 ---
 
@@ -60,21 +97,22 @@ AI-Health-Platform/
 
 - **HTML5**  
 - **CSS3** (flexbox layout, gradients, backgrounds)  
-- **Vanilla JavaScript** (DOM events, dynamic message flow)
+- **Vanilla JavaScript** (DOM events, dynamic message flow)  
+- **PHP** (email sending backend via `send_email.php`)
 
 ---
 
 ## 🔮 Future Roadmap
 
-| Feature                     | Status     | Notes |
-|-----------------------------|------------|-------|
-| AI health risk prediction   | 🔜 Planned  | Integration with ML or LLM models via API |
-| Backend with FastAPI        | 🔜 Planned  | JSON API with BMI, BP, glucose processing |
-| SHAP explainability         | 🔜 Planned  | Per-patient feature contribution insights |
-| PDF report & email delivery | 🔜 Planned  | Secure export of health analysis |
-| Docker support              | 🔜 Planned  | For local and production deployment |
-| GitHub Actions (CI)         | 🔜 Planned  | Auto-test future Python code |
-| HIPAA-compliant storage     | 🔜 Planned  | For clinical/real deployment environments |
+| Feature                   | Status    | Notes                                       |
+|---------------------------|-----------|---------------------------------------------|
+| AI health risk prediction | 🔜 Planned | Integration with ML or LLM models via API   |
+| Backend with FastAPI      | 🔜 Planned | JSON API with BMI, BP, glucose processing   |
+| SHAP explainability       | 🔜 Planned | Per-patient feature contribution insights   |
+| PDF report & email delivery| 🔜 Planned| Secure export of health analysis             |
+| Docker support            | 🔜 Planned | For local and production deployment          |
+| GitHub Actions (CI)       | 🔜 Planned | Auto-test future Python code                  |
+| HIPAA-compliant storage   | 🔜 Planned | For clinical/real deployment environments     |
 
 ---
 
@@ -82,7 +120,7 @@ AI-Health-Platform/
 
 If you're viewing this project online via GitHub Pages:
 
-  `https://eniogdantas.github.io/HealthInsight-AI-Personalized-Patient-Risk-Assessment/`
+`https://eniogdantas.github.io/HealthInsight-AI-Personalized-Patient-Risk-Assessment/`
 
 ---
 
@@ -120,5 +158,3 @@ This project is provided **strictly for academic, demonstration, and non-commerc
 
 📧 Email: [enio.danttas@gmail.com](mailto:enio.danttas@gmail.com)  
 🔗 LinkedIn: [linkedin.com/in/eniogdantas](https://linkedin.com/in/eniogdantas)
-
----
