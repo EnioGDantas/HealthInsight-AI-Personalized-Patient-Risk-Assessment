@@ -1,18 +1,65 @@
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+ html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: 
+    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+    url('/images/background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: white; /* opcional, para texto mais visível */
+}
+ header >h1{
+    font-size: 3rem;
+    padding: 30px;
+    color: white;
+ }
+    .how{
+        background-color: #a1b4d5bd;
+        color: white;
+        padding: 2rem;;
+    }
+
+    h2 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 20px;
+      max-width: 700px;
+      margin: 0 auto 30px auto;
+    }
+
+    .button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .button:hover {
+      background-color: #218838;
     }
 
     .container {
-      display: flex;
-      flex-direction: column;
+      display: none;
+      justify-content: center;
       align-items: center;
       padding: 2rem;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('images/background.jpg');
-      background-repeat: no-repeat;
-      background-size: cover;
+  
       height: 100vh;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     h1 {
@@ -29,7 +76,10 @@
       border: 1px solid #ccc;
       border-radius: 10px;
       padding: 0.5rem;
-      background-color: #fff;
+      background-color: #fff; 
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
     }
 
     .messages-container {
@@ -64,11 +114,12 @@
 
     .chat-message {
       margin-bottom: 0.8rem;
+      color: #000000;
     }
 
     .chat-message.user {
       align-self: flex-end;
-      background-color: #dcf8c6;
+      background-color: #284e0a73;
       border-radius: 10px;
       padding: 0.5rem;
       max-width: 80%;
@@ -76,7 +127,7 @@
 
     .chat-message.assistant {
       align-self: flex-start;
-      background-color: #e6f5ff;
+      background-color: #509fd4a9;
       border-radius: 10px;
       padding: 0.5rem;
       max-width: 80%;
@@ -84,9 +135,41 @@
 
     button {
       padding: 0.5rem 1rem;
-      background-color: #4CAF50;
+      background-color: #4caf4f;
       color: white;
       border: none;
       border-radius: 10px;
       cursor: pointer;
+    }
+     .form-container {
+      background: #a1b4d5bd;
+      padding: 30px;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+     .form {
+      width: 80%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 20px;
+    }
+       .textarea-form {
+      resize: vertical;
+      height: 120px;
+    }
+     .button-send {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 20px;
+      width: 80%;
+    }
+
+    .button-send:hover {
+      background-color: #0056b3;
     }
