@@ -31,6 +31,37 @@
     </div>
   </div>
 
+  <div class="form-container">
+    <h2>Interested in Collaborating?</h2>
+    <p>If you are part of a hospital, health startup, or institution that would like to partner with us and help us further develop HealthInsight AI, please fill out the contact form below.</p>
+    <form id="contactForm">
+      <input class="form" type="text" name="name" placeholder="Your Name" required>
+      <input class="form" type="email" name="email" placeholder="Your Email" required>
+      <textarea class="textarea-form form" name="message" placeholder="Your Message" required></textarea>
+      <button class="button-send" type="submit">Submit</button>
+    </form>
+  </div>
+
+  <script>
+    const contactForm = document.getElementById("contactForm");
+    contactForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const formData = new FormData(contactForm);
+      fetch("send_email.php", {
+        method: "POST",
+        body: formData
+      })
+        .then((response) => response.text())
+        .then((result) => {
+          alert(result);
+          window.location.href = "index.html";
+        })
+        .catch((error) => {
+          alert("An error occurred while sending the message.");
+        });
+    });
+  </script>
+
   <script>
     function showPlatform() {
       const container = document.getElementById('platformContainer');
