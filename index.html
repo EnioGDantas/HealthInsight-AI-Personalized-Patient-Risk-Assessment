@@ -83,13 +83,13 @@
       "What is the patient's family history of chronic diseases?",
       "Please list the patient's personal medical history:",
       "Is the patient currently taking any medications? If yes, please list them:",
-      "Does the patient have any known allergies?",
+      "Does the patient have any known allergies? (e.g., penicillin, peanuts, dust mites, etc.)",
       "Please list any previous surgeries the patient has undergone:",
       "Thank you! Now let's continue with the patient's lifestyle and daily habits. Type \"ok\" to continue:",
       "What is the patient's level of physical activity? (e.g., sedentary, moderate, active)",
       "Describe the patient's usual diet (e.g., vegetarian, omnivore, specific dietary preferences):",
       "How often does the patient consume alcohol, and in what quantity? (e.g., '2 beers per week' or '1 glass of wine daily')",
-      "Does the patient smoke? If yes, please specify frequency and quantity:",
+      "Does the patient smoke? If yes, please specify frequency and quantity: (e.g., '10 cigarettes per day' or 'occasional cigar')",
       "Thanks! Now let's collect some biometric data. Type \"ok\" when ready:",
       "Please enter the patient's blood pressure level (e.g., 120/80 mmHg):",
       "Please enter the patient's cholesterol level:",
@@ -102,6 +102,7 @@
     const answers = [];
     let readyDeclined = false;
     let emailRequested = false;
+    let waitingForRestartChoice = false;
 
     window.onload = () => {
       displayAssistantMessage(questions[currentQuestion]);
@@ -118,26 +119,49 @@
 
       const lastQuestion = questions[currentQuestion - 1];
 
-      if (emailRequested) {
-        if (userInput === "yes") {
-          displayAssistantMessage("Please enter the patient's email address:");
-          emailRequested = "awaiting_email";
-        } else if (userInput === "no") {
-          askForNewEvaluation();
+      // Handle initial "no" response and subsequent choices
+      if (waitingForRestartChoice) {
+        if (userInput === "1") {
+          currentQuestion = 0;
+          answers.length = 0;
+          waitingForRestartChoice = false;
+          displayAssistantMessage("🔄 Restarting the initial evaluation.");
+          setTimeout(() => {
+            displayAssistantMessage(questions[currentQuestion]);
+          }, 1000);
+        } else if (userInput === "2") {
+          waitingForRestartChoice = false;
+          displayAssistantMessage("🙏 Thank you for trying HealthInsight AI. We hope to see you again.");
+          setTimeout(() => {
+            displayAssistantMessage("Please send your feedback to <strong>enio.danttas@gmail.com</strong>. Your opinion is valuable to us!");
+          }, 1500);
         } else {
-          displayAssistantMessage("⚠️ Please respond with 'yes' or 'no'.");
+          displayAssistantMessage("⚠️ Please enter 1 to restart or 2 to end the session.");
         }
         return;
       }
 
       if (emailRequested === "awaiting_email") {
-        // Simple email validation
-        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userInputRaw)) {
+        // Basic email validation
+        if (userInputRaw.includes("@") && userInputRaw.includes(".")) {
           displayAssistantMessage(`📧 Results sent to ${userInputRaw}. Thank you!`);
-          askForNewEvaluation();
           emailRequested = false;
+          askForNewEvaluation();
         } else {
           displayAssistantMessage("⚠️ Please enter a valid email address (e.g., patient@example.com):");
+        }
+        return;
+      }
+
+      if (emailRequested) {
+        if (userInput === "yes") {
+          displayAssistantMessage("Please enter the patient's email address:");
+          emailRequested = "awaiting_email";
+        } else if (userInput === "no") {
+          emailRequested = false;
+          askForNewEvaluation();
+        } else {
+          displayAssistantMessage("⚠️ Please respond with 'yes' or 'no'.");
         }
         return;
       }
@@ -148,6 +172,10 @@
           displayTyping(() => displayAssistantMessage(questions[currentQuestion++]));
         } else if (userInput === "no") {
           displayAssistantMessage("✅ No problem! You can return whenever you're ready.");
+          waitingForRestartChoice = true;
+          setTimeout(() => {
+            displayAssistantMessage("Would you like to (1) restart the initial evaluation or (2) end the session? Type 1 or 2.");
+          }, 1500);
         } else {
           displayAssistantMessage("⚠️ Please respond with 'yes' or 'no' to begin.");
         }
@@ -208,6 +236,9 @@
           }, 1000);
         } else if (userInput === "2") {
           displayAssistantMessage("🙏 Thank you for trying HealthInsight AI. We hope to see you again.");
+          setTimeout(() => {
+            displayAssistantMessage("Please send your feedback to <strong>enio.danttas@gmail.com</strong>. Your opinion is valuable to us!");
+          }, 1500);
         } else {
           displayAssistantMessage("⚠️ Please enter 1 to restart or 2 to end the session.");
           readyDeclined = true;
@@ -249,6 +280,24 @@
     function askForNewEvaluation() {
       displayAssistantMessage("Would you like to perform a new evaluation for another patient? (yes/no)");
       currentQuestion = -1; // Wait state for new evaluation decision
+    }
+
+    function handleNewEvaluationResponse(response) {
+      if (response === "yes") {
+        currentQuestion = 0;
+        answers.length = 0;
+        displayAssistantMessage("🔄 Restarting the initial evaluation.");
+        setTimeout(() => {
+          displayAssistantMessage(questions[currentQuestion]);
+        }, 1000);
+      } else if (response === "no") {
+        displayAssistantMessage("🙏 Thank you for trying HealthInsight AI. We hope to see you again.");
+        setTimeout(() => {
+          displayAssistantMessage("Please send your feedback to <strong>enio.danttas@gmail.com</strong>. Your opinion is valuable to us!");
+        }, 1500);
+      } else {
+        displayAssistantMessage("⚠️ Please respond with 'yes' or 'no'.");
+      }
     }
 
     function displayUserMessage(text) {
