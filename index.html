@@ -72,7 +72,7 @@
     const inputForm = document.querySelector(".input-area");
 
     let questions = [
-      "Hello! 👋<br><br>I am your AI Health Assistant. I’m here to collect some information about the patient. Shall we begin? (yes/no)",
+      "Hello! 👋<br><br>I am your AI Health Assistant. I'm here to collect some information about the patient. Shall we begin? (yes/no)",
       "Please enter the patient's full name:",
       "Please enter the patient's age:",
       "Please enter the patient's gender (male/female/other):",
@@ -85,12 +85,12 @@
       "Is the patient currently taking any medications? If yes, please list them:",
       "Does the patient have any known allergies?",
       "Please list any previous surgeries the patient has undergone:",
-      "Thank you! Now let’s continue with the patient's lifestyle and daily habits. Type 'ok' to continue:",
+      "Thank you! Now let's continue with the patient's lifestyle and daily habits. Type \"ok\" to continue:",
       "What is the patient's level of physical activity? (e.g., sedentary, moderate, active)",
       "Describe the patient's usual diet (e.g., vegetarian, omnivore, specific dietary preferences):",
-      "How often does the patient consume alcohol, and in what quantity?",
+      "How often does the patient consume alcohol, and in what quantity? (e.g., '2 beers per week' or '1 glass of wine daily')",
       "Does the patient smoke? If yes, please specify frequency and quantity:",
-      "Thanks! Now let’s collect some biometric data. Type 'ok' when ready:",
+      "Thanks! Now let's collect some biometric data. Type \"ok\" when ready:",
       "Please enter the patient's blood pressure level (e.g., 120/80 mmHg):",
       "Please enter the patient's cholesterol level:",
       "Please enter the patient's glucose level:",
@@ -101,6 +101,7 @@
     let currentQuestion = 0;
     const answers = [];
     let readyDeclined = false;
+    let emailRequested = false;
 
     window.onload = () => {
       displayAssistantMessage(questions[currentQuestion]);
@@ -116,6 +117,30 @@
       displayUserMessage(userInputRaw);
 
       const lastQuestion = questions[currentQuestion - 1];
+
+      if (emailRequested) {
+        if (userInput === "yes") {
+          displayAssistantMessage("Please enter the patient's email address:");
+          emailRequested = "awaiting_email";
+        } else if (userInput === "no") {
+          askForNewEvaluation();
+        } else {
+          displayAssistantMessage("⚠️ Please respond with 'yes' or 'no'.");
+        }
+        return;
+      }
+
+      if (emailRequested === "awaiting_email") {
+        // Simple email validation
+        if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userInputRaw)) {
+          displayAssistantMessage(`📧 Results sent to ${userInputRaw}. Thank you!`);
+          askForNewEvaluation();
+          emailRequested = false;
+        } else {
+          displayAssistantMessage("⚠️ Please enter a valid email address (e.g., patient@example.com):");
+        }
+        return;
+      }
 
       if (currentQuestion === 0) {
         if (userInput === "yes") {
@@ -158,6 +183,11 @@
         return;
       }
 
+      if (lastQuestion.includes("Type \"ok\" to continue") && userInput !== "ok") {
+        displayAssistantMessage("⚠️ Please type exactly \"ok\" (without quotes) to continue.");
+        return;
+      }
+
       if (lastQuestion.includes("Ready?") && userInput === "no") {
         displayAssistantMessage("✅ No problem! You can return whenever you're ready.");
         readyDeclined = true;
@@ -185,9 +215,15 @@
         return;
       }
 
-      if (lastQuestion.includes("see the results") && userInput !== "yes") {
-        displayAssistantMessage("✅ Understood. Analysis skipped. Thank you!");
-        return;
+      if (lastQuestion.includes("see the results")) {
+        if (userInput !== "yes" && userInput !== "no") {
+          displayAssistantMessage("⚠️ Please respond with 'yes' or 'no'.");
+          return;
+        }
+        if (userInput === "no") {
+          displayAssistantMessage("✅ Understood. We won't proceed with the analysis. Would you like to save the information for later? (yes/no)");
+          return;
+        }
       }
 
       answers.push(userInputRaw);
@@ -203,25 +239,17 @@
           displayAssistantMessage(resultHtml);
 
           setTimeout(() => {
-            displayAssistantMessage("Would you like to perform a new evaluation for another patient? (yes/no)");
-            currentQuestion = -1; // Wait state for new evaluation decision
+            displayAssistantMessage("Would you like to receive these results by email? (yes/no)");
+            emailRequested = true;
           }, 1000);
         });
       }
-
-      if (currentQuestion === -1) {
-        if (userInput === "yes") {
-          currentQuestion = 0;
-          answers.length = 0;
-          displayAssistantMessage("🔁 Starting new evaluation...");
-          setTimeout(() => displayAssistantMessage(questions[currentQuestion]), 1000);
-        } else if (userInput === "no") {
-          displayAssistantMessage("🙏 Thank you for using HealthInsight AI. If you found this helpful, please consider sending your feedback to <strong>enio.danttas@gmail.com</strong>. Have a healthy day! 🌿");
-          currentQuestion = 9999;
-        }
-        return;
-      }
     });
+
+    function askForNewEvaluation() {
+      displayAssistantMessage("Would you like to perform a new evaluation for another patient? (yes/no)");
+      currentQuestion = -1; // Wait state for new evaluation decision
+    }
 
     function displayUserMessage(text) {
       const message = document.createElement("div");
