@@ -227,9 +227,31 @@
         return;
       }
 
-      // "ok" validation for biometric data
-      if (lastQuestion && lastQuestion.includes("Type \"ok\" when ready") && userInput !== "ok") {
-        displayAssistantMessage("⚠️ Please type exactly \"ok\" (without quotes) to continue.");
+      // Strict "ok" validation for lifestyle habits continuation
+      if (lastQuestion && lastQuestion.includes('Type "ok" to continue')) {
+        if (userInput !== "ok") {
+          displayAssistantMessage('⚠️ Please type exactly "ok" (without quotes) to continue.');
+          return;
+        }
+        answers.push(userInputRaw);
+        displayTyping(() => {
+          displayAssistantMessage(questions[currentQuestion]);
+          currentQuestion++;
+        });
+        return;
+      }
+
+      // Strict "ok" validation for biometric data
+      if (lastQuestion && lastQuestion.includes('Type "ok" when ready')) {
+        if (userInput !== "ok") {
+          displayAssistantMessage('⚠️ Please type exactly "ok" (without quotes) to continue.');
+          return;
+        }
+        answers.push(userInputRaw);
+        displayTyping(() => {
+          displayAssistantMessage(questions[currentQuestion]);
+          currentQuestion++;
+        });
         return;
       }
 
