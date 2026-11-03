@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>HealthInsight AI – unit tests</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    .ok { color: #1a7f37; }
+    .fail { color: #cf222e; }
+  </style>
+</head>
+<body>
+  <h1>Unit tests</h1>
+  <ul id="results"></ul>
+  <p id="summary"></p>
+
+  <script src="../js/risk.js"></script>
+  <script src="risk.test.js"></script>
+  <script>
+    const list = document.getElementById('results');
+    TEST_RESULTS.forEach(function (r) {
+      const item = document.createElement('li');
+      item.className = r.ok ? 'ok' : 'fail';
+      item.textContent = (r.ok ? '✓ ' : '✗ ') + r.name + (r.ok ? '' : ' – ' + r.error);
+      list.appendChild(item);
+    });
+    const passed = TEST_RESULTS.filter(r => r.ok).length;
+    document.getElementById('summary').textContent = passed + '/' + TEST_RESULTS.length + ' passed';
+  </script>
+</body>
+</html>
