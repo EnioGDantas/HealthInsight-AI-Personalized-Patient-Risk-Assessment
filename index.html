@@ -3,390 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AI Health Platform</title>
+  <title>HealthInsight AI – Prototype</title>
+  <meta name="description" content="Prototype that screens basic patient data against published clinical guidelines for chronic disease risk." />
   <link rel="stylesheet" href="style/styles.css" />
 </head>
 <body>
   <header>
-    <h1>AI Health Platform Prototype</h1>
+    <h1>HealthInsight AI</h1>
     <div class="how">
       <h2>How It Works</h2>
       <p>
-        HealthInsight AI uses cutting-edge Artificial Intelligence technology to provide personalized risk
-        assessments for patients, identifying potential health risks early on. By utilizing public health data, the
-        platform offers accurate predictions based on a patient's age, medical condition, and other critical factors.
+        HealthInsight AI collects basic patient information (demographics, history, lifestyle and measurements)
+        and screens it for chronic disease risk: obesity, hypertension, diabetes and cholesterol. The current
+        prototype is <strong>rule-based</strong>. It uses published clinical guidelines (CDC, ADA, ACC/AHA) and the
+        validated ADA Type 2 Diabetes Risk Test. Machine-learning models are on the roadmap and will be added
+        after they are validated on public health datasets.
       </p>
-      <button class="button" onclick="showPlatform()">Try It Now</button>
+      <p class="disclaimer">
+        ⚠️ Prototype for demonstration only. It is not a medical device and does not provide a diagnosis.
+        Please do not enter real patient data. Everything runs in your browser and nothing is stored or sent.
+      </p>
+      <button class="button" id="tryButton" type="button">Try It Now</button>
     </div>
   </header>
 
-  <div class="container" id="platformContainer" style="display:none">
-    <br>
-    <div class="chat-area" id="chatArea">
-      <div id="chatMessages" class="messages-container"></div>
-      <form class="input-area">
-        <textarea class="input-field" id="messageInput" placeholder="Type your message here..." rows="2"></textarea>
-        <button type="submit">Send</button>
-      </form>
+  <main>
+    <div class="container" id="platformContainer" hidden>
+      <div class="chat-area" id="chatArea">
+        <div id="chatMessages" class="messages-container" aria-live="polite"></div>
+        <form class="input-area" id="chatForm">
+          <textarea class="input-field" id="messageInput" placeholder="Type your answer here..." rows="2" aria-label="Your answer"></textarea>
+          <button type="submit">Send</button>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <div class="form-container">
-    <h2>Interested in Collaborating?</h2>
-    <p>If you are part of a hospital, health startup, or institution that would like to partner with us and help us further develop HealthInsight AI, please fill out the contact form below.</p>
-    <form id="contactForm">
-      <input class="form" type="text" name="name" placeholder="Your Name" required>
-      <input class="form" type="email" name="email" placeholder="Your Email" required>
-      <textarea class="textarea-form form" name="message" placeholder="Your Message" required></textarea>
-      <button class="button-send" type="submit">Submit</button>
-    </form>
-  </div>
+    <div class="form-container">
+      <h2>Interested in Collaborating?</h2>
+      <p>If you are part of a hospital, health startup, or institution and would like to give feedback or help develop HealthInsight AI, please get in touch.</p>
+      <form id="contactForm">
+        <input class="form" type="text" name="name" placeholder="Your Name" required>
+        <input class="form" type="email" name="email" placeholder="Your Email" required>
+        <textarea class="textarea-form form" name="message" placeholder="Your Message" required></textarea>
+        <button class="button-send" type="submit">Submit</button>
+      </form>
+      <p id="contactStatus" class="contact-status" role="status"></p>
+    </div>
+  </main>
 
-  <script>
-    const contactForm = document.getElementById("contactForm");
-    contactForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const formData = new FormData(contactForm);
-      fetch("send_email.php", {
-        method: "POST",
-        body: formData
-      })
-      .then((response) => response.text())
-      .then((result) => {
-        alert(result);
-        window.location.href = "index.html";
-      })
-      .catch((error) => {
-        alert("An error occurred while sending the message.");
-      });
-    });
+  <!-- Copy of the last report, used only when printing -->
+  <div id="printArea"></div>
 
-    function showPlatform() {
-      const container = document.getElementById('platformContainer');
-      container.style.display = 'block';
-      container.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    const chatMessages = document.getElementById("chatMessages");
-    const messageInput = document.getElementById("messageInput");
-    const inputForm = document.querySelector(".input-area");
-
-    let questions = [
-      "Hello! 👋<br><br>I am your AI Health Assistant. I'm here to collect some information about the patient. Shall we begin? (yes/no)",
-      "Please enter the patient's full name:",
-      "Please enter the patient's age:",
-      "Please enter the patient's gender (male/female/other):",
-      "Please enter the patient's height (in cm):",
-      "Please enter the patient's weight (in kg):",
-      "Please enter the patient's ethnicity:<br>1 - White<br>2 - Black or African American<br>3 - Asian<br>4 - Hispanic or Latino<br>5 - Native American or Alaska Native<br>6 - Native Hawaiian or Other Pacific Islander<br>7 - Other (please specify)",
-      "Thank you for the initial information.<br><br>Now let's move on to the patient's medical history. Ready? (yes/no)",
-      "What is the patient's family history of chronic diseases?",
-      "Please list the patient's personal medical history:",
-      "Is the patient currently taking any medications? If yes, please list them:",
-      "Does the patient have any known allergies? (e.g., penicillin, peanuts, dust mites, etc.)",
-      "Please list any previous surgeries the patient has undergone:",
-      "Thank you! Now let's continue with the patient's lifestyle and daily habits. Type \"ok\" to continue:",
-      "What is the patient's level of physical activity? (e.g., sedentary, moderate, active)",
-      "Describe the patient's usual diet (e.g., vegetarian, omnivore, specific dietary preferences):",
-      "How often does the patient consume alcohol, and in what quantity? (e.g., '2 beers per week' or '1 glass of wine daily')",
-      "Does the patient smoke? If yes, please specify frequency and quantity: (e.g., '10 cigarettes per day' or 'occasional cigar')",
-      "Thanks! Now let's collect some biometric data. Type \"ok\" when ready:",
-      "Please enter the patient's blood pressure level (e.g., 120/80 mmHg):",
-      "Please enter the patient's cholesterol level:",
-      "Please enter the patient's glucose level:",
-      "Please enter the patient's abdominal circumference (in cm):",
-      "Would you like to see the results based on the information provided? (yes/no)"
-    ];
-
-    let currentQuestion = 0;
-    const answers = [];
-    let readyDeclined = false;
-    let emailRequested = false;
-    let waitingForRestartChoice = false;
-    let evaluationComplete = false;
-
-    window.onload = () => {
-      displayAssistantMessage(questions[currentQuestion]);
-    };
-
-    inputForm.addEventListener("submit", function(event) {
-      event.preventDefault();
-      const userInputRaw = messageInput.value.trim();
-      const userInput = userInputRaw.toLowerCase();
-      messageInput.value = "";
-      if (!userInput) return;
-
-      displayUserMessage(userInputRaw);
-
-      const lastQuestion = questions[currentQuestion - 1];
-
-      // Handle evaluation restart or end after completion
-      if (evaluationComplete) {
-        if (userInput === "yes") {
-          currentQuestion = 0;
-          answers.length = 0;
-          evaluationComplete = false;
-          displayAssistantMessage("🔄 Restarting the initial evaluation.");
-          setTimeout(() => {
-            displayAssistantMessage(questions[currentQuestion]);
-          }, 1000);
-        } else if (userInput === "no") {
-          displayAssistantMessage("🙏 Thank you for trying HealthInsight AI. We hope to see you again.");
-          setTimeout(() => {
-            displayAssistantMessage("Please send your feedback to <strong>enio.danttas@gmail.com</strong>. We appreciate your input!");
-          }, 1500);
-        } else {
-          displayAssistantMessage("⚠️ Please respond with 'yes' or 'no'.");
-        }
-        return;
-      }
-
-      // Handle email input
-      if (emailRequested === "awaiting_email") {
-        // Basic email validation
-        if (userInputRaw.includes("@") && userInputRaw.includes(".")) {
-          displayAssistantMessage(`📧 Results sent to ${userInputRaw}. Thank you!`);
-          emailRequested = false;
-          askForNewEvaluation();
-        } else {
-          displayAssistantMessage("⚠️ Please enter a valid email address (e.g., patient@example.com):");
-        }
-        return;
-      }
-
-      // Handle email request
-      if (emailRequested) {
-        if (userInput === "yes") {
-          displayAssistantMessage("Please enter the patient's email address:");
-          emailRequested = "awaiting_email";
-        } else if (userInput === "no") {
-          emailRequested = false;
-          askForNewEvaluation();
-        } else {
-          displayAssistantMessage("⚠️ Please respond with 'yes' or 'no'.");
-        }
-        return;
-      }
-
-      // Handle initial "no" response and subsequent choices
-      if (waitingForRestartChoice) {
-        if (userInput === "1") {
-          currentQuestion = 0;
-          answers.length = 0;
-          waitingForRestartChoice = false;
-          displayAssistantMessage("🔄 Restarting the initial evaluation.");
-          setTimeout(() => {
-            displayAssistantMessage(questions[currentQuestion]);
-          }, 1000);
-        } else if (userInput === "2") {
-          waitingForRestartChoice = false;
-          displayAssistantMessage("🙏 Thank you for trying HealthInsight AI. We hope to see you again.");
-          setTimeout(() => {
-            displayAssistantMessage("Please send your feedback to <strong>enio.danttas@gmail.com</strong>. Your opinion is valuable to us!");
-          }, 1500);
-        } else {
-          displayAssistantMessage("⚠️ Please enter 1 to restart or 2 to end the session.");
-        }
-        return;
-      }
-
-      // Initial question validation
-      if (currentQuestion === 0) {
-        if (userInput === "yes") {
-          currentQuestion++;
-          displayTyping(() => displayAssistantMessage(questions[currentQuestion++]));
-        } else if (userInput === "no") {
-          displayAssistantMessage("✅ No problem! You can return whenever you're ready.");
-          waitingForRestartChoice = true;
-          setTimeout(() => {
-            displayAssistantMessage("Would you like to (1) restart the initial evaluation or (2) end the session? Type 1 or 2.");
-          }, 1500);
-        } else {
-          displayAssistantMessage("⚠️ Please respond with 'yes' or 'no' to begin.");
-        }
-        return;
-      }
-
-      // Medical history ready question validation
-      if (lastQuestion && lastQuestion.includes("Ready? (yes/no)")) {
-        if (userInput === "yes") {
-          answers.push(userInputRaw);
-          displayTyping(() => {
-            displayAssistantMessage(questions[currentQuestion]);
-            currentQuestion++;
-          });
-        } else if (userInput === "no") {
-          displayAssistantMessage("✅ No problem! You can return whenever you're ready.");
-          waitingForRestartChoice = true;
-          setTimeout(() => {
-            displayAssistantMessage("Would you like to (1) restart the initial evaluation or (2) end the session? Type 1 or 2.");
-          }, 1500);
-        } else {
-          displayAssistantMessage("⚠️ Please respond with 'yes' or 'no'.");
-        }
-        return;
-      }
-
-      // Strict "ok" validation for lifestyle habits continuation
-      if (lastQuestion && lastQuestion.includes('Type "ok" to continue')) {
-        if (userInput !== "ok") {
-          displayAssistantMessage('⚠️ Please type exactly "ok" (without quotes) to continue.');
-          return;
-        }
-        answers.push(userInputRaw);
-        displayTyping(() => {
-          displayAssistantMessage(questions[currentQuestion]);
-          currentQuestion++;
-        });
-        return;
-      }
-
-      // Strict "ok" validation for biometric data
-      if (lastQuestion && lastQuestion.includes('Type "ok" when ready')) {
-        if (userInput !== "ok") {
-          displayAssistantMessage('⚠️ Please type exactly "ok" (without quotes) to continue.');
-          return;
-        }
-        answers.push(userInputRaw);
-        displayTyping(() => {
-          displayAssistantMessage(questions[currentQuestion]);
-          currentQuestion++;
-        });
-        return;
-      }
-
-      // Gender validation
-      if (lastQuestion && lastQuestion.includes("gender")) {
-        const acceptedGenders = ["male", "female", "other"];
-        if (!acceptedGenders.includes(userInput)) {
-          const closest = acceptedGenders.find(g => g[0] === userInput[0]) || "female";
-          displayAssistantMessage(`⚠️ Did you mean '<strong>${closest}</strong>'? Please enter: male, female, or other.`);
-          return;
-        }
-      }
-
-      // Age validation
-      if (lastQuestion && lastQuestion.includes("age") && (!/^[0-9]{1,3}$/.test(userInput))) {
-        displayAssistantMessage("⚠️ Please enter a valid age (up to 3 digits). Try again:");
-        return;
-      }
-
-      // Height validation
-      if (lastQuestion && lastQuestion.includes("height") && (!/^[0-9]{2,3}$/.test(userInput))) {
-        displayAssistantMessage("⚠️ Please enter a valid height in cm (e.g., 170). Try again:");
-        return;
-      }
-
-      // Weight validation
-      if (lastQuestion && lastQuestion.includes("weight") && (!/^[0-9]{2,3}$/.test(userInput))) {
-        displayAssistantMessage("⚠️ Please enter a valid weight in kg (e.g., 65). Try again:");
-        return;
-      }
-
-      // Blood pressure validation
-      if (lastQuestion && lastQuestion.includes("blood pressure") && !/^[0-9]{2,3}\/\d{2,3}$/.test(userInput)) {
-        displayAssistantMessage("⚠️ Please enter a valid blood pressure (e.g., 120/80). Try again:");
-        return;
-      }
-
-      // See results validation
-      if (lastQuestion && lastQuestion.includes("see the results")) {
-        if (userInput !== "yes" && userInput !== "no") {
-          displayAssistantMessage("⚠️ Please respond with 'yes' or 'no'.");
-          return;
-        }
-        if (userInput === "no") {
-          displayAssistantMessage("✅ Understood. We won't proceed with the analysis. Would you like to save the information for later? (yes/no)");
-          return;
-        }
-      }
-
-      answers.push(userInputRaw);
-
-      if (currentQuestion < questions.length) {
-        displayTyping(() => {
-          displayAssistantMessage(questions[currentQuestion]);
-          currentQuestion++;
-        });
-      } else {
-        displayTyping(() => {
-          const resultHtml = analyzeData(answers);
-          displayAssistantMessage(resultHtml);
-
-          setTimeout(() => {
-            displayAssistantMessage("Would you like to receive these results by email? (yes/no)");
-            emailRequested = true;
-          }, 1000);
-        });
-      }
-    });
-
-    function askForNewEvaluation() {
-      evaluationComplete = true;
-      displayAssistantMessage("Would you like to perform a new evaluation for another patient? (yes/no)");
-    }
-
-    function displayUserMessage(text) {
-      const message = document.createElement("div");
-      message.className = "chat-message user";
-      message.innerHTML = `<p>${text}</p>`;
-      chatMessages.appendChild(message);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function displayAssistantMessage(text) {
-      const message = document.createElement("div");
-      message.className = "chat-message assistant";
-      message.innerHTML = `<p>${text}</p>`;
-      chatMessages.appendChild(message);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function displayTyping(callback) {
-      const typing = document.createElement("div");
-      typing.className = "chat-message assistant typing";
-      typing.innerHTML = "<p>Typing...</p>";
-      chatMessages.appendChild(typing);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      setTimeout(() => {
-        typing.remove();
-        callback();
-      }, 700);
-    }
-
-    function analyzeData(ans) {
-      const age = Number(ans[2]);
-      const height = Number(ans[4]) / 100;
-      const weight = Number(ans[5]);
-      const bmi = weight / (height * height);
-      const bp = ans[19].split('/').map(Number);
-      const glucose = Number(ans[21]);
-
-      let feedback = `<strong>📊 Personalized Health Analysis:</strong><br><br>`;
-      feedback += `🧮 <strong>BMI:</strong> ${bmi.toFixed(1)} — `;
-      feedback += bmi >= 30 ? `Obese (⚠️)<br>🔹 Recommendation: Calorie control, exercise, consult doctor.<br><br>` :
-                 bmi >= 25 ? `Overweight (⚠️)<br>🔹 Recommendation: Reduce sugar, increase activity.<br><br>` :
-                             `Normal (✅)<br>🔹 Recommendation: Maintain healthy habits.<br><br>`;
-
-      feedback += `🩺 <strong>Blood Pressure:</strong> ${ans[19]} — `;
-      feedback += (bp[0] >= 130 || bp[1] >= 80) ? `Elevated (⚠️)<br>🔹 Recommendation: Lower sodium, exercise.<br><br>` :
-                                             `Normal (✅)<br>🔹 Recommendation: Maintain current lifestyle.<br><br>`;
-
-      feedback += `🧪 <strong>Glucose:</strong> ${glucose} mg/dL — `;
-      feedback += glucose >= 126 ? `Diabetic range (⚠️)<br>🔹 Recommendation: Consult doctor immediately.<br><br>` :
-                 glucose >= 100 ? `Pre-diabetic range (⚠️)<br>🔹 Recommendation: Diet and exercise.<br><br>` :
-                                   `Normal (✅)<br>🔹 Recommendation: Keep monitoring levels.<br><br>`;
-
-      feedback += `💬 <em>This analysis is based on CDC data. For a full diagnosis, consult a healthcare professional.</em>`;
-      return feedback;
-    }
-
-    messageInput.addEventListener("keydown", function (event) {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        inputForm.dispatchEvent(new Event("submit"));
-      }
-    });
-  </script>
+  <script src="js/risk.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>

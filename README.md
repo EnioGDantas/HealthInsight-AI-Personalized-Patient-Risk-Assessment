@@ -1,48 +1,62 @@
-# 🧠 AI Health Platform Prototype
+# 🧠 HealthInsight AI – Patient Risk Screening Prototype
 
 ## Overview
 
-**AI Health Platform** is a browser-based prototype simulating an AI-powered virtual health assistant. Through a step-by-step conversational interface, it collects patient information—demographics, medical history, lifestyle, and biometric data—and returns personalized health feedback.
+**HealthInsight AI** is a browser-based prototype of a virtual health assistant. Through a step-by-step chat, it collects basic patient information (demographics, history, lifestyle and measurements) and screens it for chronic disease risk: obesity, hypertension, type 2 diabetes and high cholesterol.
 
-This solution is designed to support preventive healthcare by aligning user data with regional public health benchmarks. While currently rule-based and built with vanilla JavaScript, it is fully structured for future AI integration (LLMs and predictive modeling).
+**Current status: rule-based prototype.** Every result comes from a published clinical guideline or a validated risk score, listed below. Machine-learning models are on the roadmap. They will be added only after they are validated against these baselines on public health datasets.
+
+> ⚠️ This is a demonstration prototype. It is **not a medical device**, it does **not** provide a diagnosis, and it has not been clinically validated. Do not enter real patient data. Everything runs in the browser, and no data is stored or sent anywhere.
+
+---
+
+## 🩺 What the prototype evaluates
+
+| Measure | Categories | Source |
+|---|---|---|
+| BMI | Underweight, healthy, overweight, obesity class 1–3 | CDC adult BMI categories |
+| Blood pressure | Normal, elevated, stage 1, stage 2, severe range | ACC/AHA (2017, kept in the 2025 guideline) |
+| Fasting glucose | Normal < 100, prediabetes 100–125, diabetes range ≥ 126 mg/dL | ADA Standards of Care |
+| Non-fasting glucose | Diabetes range ≥ 200 mg/dL, otherwise inconclusive | ADA Standards of Care |
+| HbA1c | Normal < 5.7, prediabetes 5.7–6.4, diabetes range ≥ 6.5% | ADA Standards of Care |
+| Total cholesterol | Desirable < 200, borderline 200–239, high ≥ 240 mg/dL | NCEP ATP III |
+| Waist circumference | Men > 102 cm, women > 88 cm (Asian descent: 90 / 80 cm) | NHLBI / IDF |
+| Alcohol | Men > 14, women > 7 drinks/week | NIAAA |
+| Smoking | Current smoker flagged | USPSTF |
+| **Type 2 diabetes risk** | **ADA risk score 0–10; ≥ 5 = increased risk** | **ADA Risk Test (Bang et al., Ann Intern Med 2009)** |
+
+Notes:
+- The ADA Risk Test uses a height/weight chart. This prototype approximates it with BMI cut-offs (25 / 30 / 40, or 23 for Asian Americans as recommended by the ADA).
+- Values in the "diabetes range" always require a confirmatory test by a clinician.
 
 ---
 
 ## 🚀 Features
 
-- 💬 **Conversational Chat Interface**  
-  Natural, message-based interaction for clinical data collection.
-
-- 📝 **Multi-step Patient Questionnaire**  
-  Gathers comprehensive patient data across categories:
-  - Identification: name, age, gender, ethnicity  
-  - Medical history: allergies, conditions, surgeries  
-  - Lifestyle: physical activity, diet, alcohol, smoking  
-  - Biometrics: BMI, blood pressure, cholesterol, glucose
-
-- 📊 **Real-time Feedback**  
-  Displays personalized analysis based on BMI, blood pressure, and glucose, following CDC/Georgia guidelines.
-
-- ⚡ **Smooth User Experience**  
-  - Auto-scrolling chat UI  
-  - `Enter` to send, `Shift+Enter` for multiline  
-  - Clean layout and mobile-friendly design
-
-- 📧 **Email Sending via PHP**  
-  Backend PHP script (`send_email.php`) added to handle sending user data and reports by email.
+- 💬 **Conversational interface** with input validation, optional fields (`skip`), `back` to fix the previous answer and `restart`.
+- 📊 **Screening summary** with the value, category and guideline source for each measure, the ADA risk score breakdown and suggested next steps.
+- 🖨️ **Print / save as PDF** of the summary.
+- 🔒 **Privacy by design:** no backend, no storage, user input is never rendered as HTML.
+- ✅ **Unit tests** for all clinical rules, run automatically on GitHub Actions.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-AI-Health-Platform/
-├── index.html                # Main HTML page (chat interface)
+├── index.html               # Page layout
+├── js/
+│   ├── risk.js              # Clinical rules and ADA risk score (pure functions, no DOM)
+│   └── app.js               # Chat flow and report rendering
 ├── style/
-│   └── style.css             # UI styles (chat layout, colors, fonts)
+│   └── styles.css           # Styles, including mobile and print
 ├── images/
-│   └── background.jpg        # Background image for interface
-├── send_email.php            # PHP script to send emails (backend)
+│   └── background.jpg
+├── tests/
+│   ├── risk.test.js         # Unit tests (Node or browser)
+│   └── index.html           # Runs the tests in the browser
+└── .github/workflows/
+    └── tests.yml            # CI: runs the unit tests on every push
 ```
 
 ---
@@ -53,85 +67,45 @@ AI-Health-Platform/
    ```bash
    git clone https://github.com/EnioGDantas/HealthInsight-AI-Personalized-Patient-Risk-Assessment.git
    ```
-2. Open the project folder  
-3. Open `index.html` in any modern web browser  
-4. Interact with the virtual assistant
+2. Open `index.html` in a modern browser, or use the GitHub Pages link below.
 
-5. To enable email sending functionality:  
-   - Deploy the project on a server with PHP support (local or remote)  
-   - Use `send_email.php` as your backend email sender script  
-   - Connect your frontend form or JavaScript fetch/ajax requests to `send_email.php`  
+### Running the tests
 
----
-
-## 📧 Example Usage of `send_email.php`
-
-You can send a POST request to `send_email.php` with parameters like:
-
-- `to` — recipient email address  
-- `subject` — email subject  
-- `message` — email body content (HTML or plain text)
-
-**Example JavaScript fetch:**
-
-```js
-fetch('send_email.php', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-  body: new URLSearchParams({
-    to: 'recipient@example.com',
-    subject: 'Health Report',
-    message: '<h1>Your Health Data</h1><p>Details here...</p>'
-  })
-})
-.then(response => response.text())
-.then(data => console.log(data))
-.catch(err => console.error('Error sending email:', err));
+```bash
+node tests/risk.test.js
 ```
 
-Make sure your PHP script handles validation and sanitization properly.
+Or open `tests/index.html` in a browser.
+
+### Contact form
+
+GitHub Pages only serves static files, so it cannot run a PHP mailer. By default, the contact form opens the visitor's e-mail app with the message ready to send. To receive messages directly, create a free form endpoint (for example on [Formspree](https://formspree.io)) and paste its URL into `CONTACT_ENDPOINT` at the top of `js/app.js`.
 
 ---
 
-## 🧬 Built With
+## 🔮 Roadmap
 
-- **HTML5**  
-- **CSS3** (flexbox layout, gradients, backgrounds)  
-- **Vanilla JavaScript** (DOM events, dynamic message flow)  
-- **PHP** (email sending backend via `send_email.php`)
-
----
-
-## 🔮 Future Roadmap
-
-| Feature                   | Status    | Notes                                       |
-|---------------------------|-----------|---------------------------------------------|
-| AI health risk prediction | 🔜 Planned | Integration with ML or LLM models via API   |
-| Backend with FastAPI      | 🔜 Planned | JSON API with BMI, BP, glucose processing   |
-| SHAP explainability       | 🔜 Planned | Per-patient feature contribution insights   |
-| PDF report & email delivery| 🔜 Planned| Secure export of health analysis             |
-| Docker support            | 🔜 Planned | For local and production deployment          |
-| GitHub Actions (CI)       | 🔜 Planned | Auto-test future Python code                  |
-| HIPAA-compliant storage   | 🔜 Planned | For clinical/real deployment environments     |
+| Step | Status | Notes |
+|---|---|---|
+| Guideline-based screening + ADA risk score | ✅ Done | This version |
+| Validation study on public data | 🔜 Next | NHANES (CDC): compare the ADA score with ML models (logistic regression, gradient boosting) using AUROC, calibration, decision curves and subgroup (fairness) analysis, plus SHAP. Report following TRIPOD+AI. |
+| Cardiovascular risk | 🔜 Planned | AHA PREVENT equations (requires HDL and eGFR) |
+| Structured form for clinicians | 🔜 Planned | Faster than the chat for professional use |
+| Backend API (FastAPI) | 🔜 Planned | Only needed once a trained model exists |
+| FHIR / EHR integration | 🔜 Planned | Test with Synthea synthetic patients |
+| Clinical pilot | 🔜 Planned | Retrospective, de-identified, with ethics (IRB) approval |
 
 ---
 
 ## 🌐 Hosting via GitHub Pages
 
-If you're viewing this project online via GitHub Pages:
-
 `https://eniogdantas.github.io/HealthInsight-AI-Personalized-Patient-Risk-Assessment/`
 
 ---
 
-## 🧠 Example Outputs
+## 📝 Changelog
 
-After data collection, the assistant returns:
-
-- **BMI Category**: Normal / Overweight / Obese  
-- **Blood Pressure Status**: Normal / Elevated  
-- **Glucose Risk**: Normal / Prediabetic / Diabetic  
-- **Lifestyle Recommendations** tailored to user metrics
+See [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -157,8 +131,6 @@ This project is provided **strictly for academic, demonstration, and non-commerc
 
 📌 [How AI Is Preventing Chronic Disease: Inside the HealthInsight AI Platform](https://medium.com/@enio.danttas/how-ai-is-preventing-chronic-disease-inside-the-healthinsight-ai-platform-6810ea84cbef)  
 🗓️ Published: June 2025  
-
-
 
 ---
 ## 🤝 Contact
